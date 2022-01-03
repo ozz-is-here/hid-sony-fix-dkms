@@ -12,10 +12,17 @@ Install DKMS first.
 
 ```
 sudo git clone https://github.com/ozz-is-here/hid-sony-fix-dkms.git /usr/src/hid-sony-fix-dkms-0.1
-sudo dkms install sudo dkms install -m hid-sony-fix-dkms -v 0.1
+sudo dkms install -m hid-sony-fix-dkms -v 0.1
 ```
 
 Add `blacklist hid_sony` to `/etc/modprobe.d/blacklist.conf`.
+
+# Uninstalling
+
+```
+sudo dkms remove -m hid-sony-fix-dkms -v 0.1
+sudo rm -rf /usr/src/hid-sony-fix-dkms-0.1
+```
 
 # 🇷🇺 Исправленный hid_sony для поддельных геймпадов DualShock 4
 
@@ -31,7 +38,14 @@ Add `blacklist hid_sony` to `/etc/modprobe.d/blacklist.conf`.
 
 ```
 sudo git clone https://github.com/ozz-is-here/hid-sony-fix-dkms.git /usr/src/hid-sony-fix-dkms-0.1
-sudo dkms install sudo dkms install -m hid-sony-fix-dkms -v 0.1
+sudo dkms install -m hid-sony-fix-dkms -v 0.1
 ```
 
 Добавьте `blacklist hid_sony` в `/etc/modprobe.d/blacklist.conf`.
+
+# Удаление
+
+```
+sudo dkms remove -m hid-sony-fix-dkms -v 0.1
+sudo rm -rf /usr/src/hid-sony-fix-dkms-0.1
+```
