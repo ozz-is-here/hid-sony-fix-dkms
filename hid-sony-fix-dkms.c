@@ -1130,30 +1130,18 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
 		/* Store data in int for more precision during mult_frac. */
 		int raw_data = (short)((rd[offset+1] << 8) | rd[offset]);
 		struct ds4_calibration_data *calib = &sc->ds4_calib_data[n];
-		int calib_data;
-
-		int calib_sens_numer = calib->sens_numer;
-		int raw_data_calib_bias = raw_data - calib->bias;
-		int calib_sens_denom = calib->sens_denom;
-
-		if (raw_data_calib_bias == 0)
-			raw_data_calib_bias = 1;
-		if (calib_sens_numer == 0)
-			calib_sens_numer = 1;
-		if (calib_sens_denom == 0)
-			calib_sens_denom = 1;
-
 
 		/* High precision is needed during calibration, but the
 		 * calibrated values are within 32-bit.
 		 * Note: we swap numerator 'x' and 'numer' in mult_frac for
 		 *       precision reasons so we don't need 64-bit.
 		 */
-		//int calib_data = mult_frac(calib->sens_numer,
-		/*calib_data = mult_frac(calib->sens_numer,
+		/*int calib_data = mult_frac(calib->sens_numer,
 					   raw_data - calib->bias,
 					   calib->sens_denom);*/
-		calib_data = mult_frac(calib_sens_numer, raw_data_calib_bias, calib_sens_denom);
+		int calib_data = mult_frac((calib->sens_numer == 0) ? 1 : calib->sens_numer,
+					   (raw_data - calib->bias == 0) ? 1 : raw_data - calib->bias,
+					   (calib->sens_denom == 0) ? 1 : calib->sens_denom);
 
 
 		input_report_abs(sc->sensor_dev, calib->abs_code, calib_data);
@@ -2633,9 +2621,7 @@ static int sony_check_add(struct sony_sc *sc)
 			return 0;
 		}
 	} else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
-		//buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
 		buf = kmalloc(max(DS4_FEATURE_REPORT_0x12_SIZE, DS4_FEATURE_REPORT_0x81_SIZE), GFP_KERNEL);
-		//buf = kmalloc(max(DS4_FEATURE_REPORT_0x12_SIZE, DS4_FEATURE_REPORT_0x81_SIZE), GFP_NOIO);
 		if (!buf)
 			return -ENOMEM;
 
@@ -2657,12 +2643,6 @@ static int sony_check_add(struct sony_sc *sc)
 				DS4_FEATURE_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
 				HID_REQ_GET_REPORT);
 
-		/*if (ret != DS4_FEATURE_REPORT_0x81_SIZE) {
-			hid_err(sc->hdev, "failed to retrieve feature report 0x81 with the DualShock 4 MAC address\n");
-			ret = ret < 0 ? ret : -EINVAL;
-			goto out_free;
-		}*/
-
 		if (ret == DS4_FEATURE_REPORT_0x81_SIZE) {
 			memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
 			goto out_free;
@@ -2670,8 +2650,6 @@ static int sony_check_add(struct sony_sc *sc)
 
 		hid_err(sc->hdev, "failed to retrieve feature reports 0x81 and 0x12 with the DualShock 4 MAC address\n");
 		ret = ret < 0 ? ret : -EINVAL;
-
-		//memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
 
 		snprintf(sc->hdev->uniq, sizeof(sc->hdev->uniq),
 			 "%pMR", sc->mac_address);
