@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Uninstalling modalias database..."
+rm -f /etc/modprobe.d/hid-sony-blacklist.conf
