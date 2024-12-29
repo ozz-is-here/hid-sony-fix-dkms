@@ -40,7 +40,13 @@
 #include <linux/crc32.h>
 #include <linux/usb.h>
 #include <linux/timer.h>
+#include <linux/version.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)
 #include <asm/unaligned.h>
+#else
+#include <linux/unaligned.h>
+#endif
 
 #include "hid-ids.h"
 
@@ -937,8 +943,12 @@ static int ds4_mapping(struct hid_device *hdev, struct hid_input *hi,
 	return 0;
 }
 
-static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
-		unsigned int *rsize)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)
+static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc, unsigned int *rsize)
+#else
+static const __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int *rsize)
+#endif
+
 {
 	struct sony_sc *sc = hid_get_drvdata(hdev);
 

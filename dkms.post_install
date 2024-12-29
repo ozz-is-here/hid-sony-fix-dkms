@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Installing modalias database..."
+install -D -m 0644 -t /etc/modprobe.d etc-modprobe.d/hid-sony-blacklist.conf
